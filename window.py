@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import font
-from decimal import Decimal
-import decimal
+from decimal import Decimal, getcontext
 from tkinter import messagebox
 import pyperclip
 
@@ -13,7 +12,7 @@ class Window(tk.Frame):
     default_font = font.nametofont("TkDefaultFont")
     default_font.configure(size = 20)
     
-    decimal.getcontext().prec = 6
+    getcontext().prec = 30
   
     menu = tk.Menu(self.master)
     self.master.config(menu=menu)
@@ -43,6 +42,12 @@ class Window(tk.Frame):
     
     self.minusButton = tk.Button(master, text="-", command=self.minus)
     self.minusButton.grid(row=3, column=1, rowspan=1)
+    
+    self.multButton = tk.Button(master, text="*", command=self.mult)
+    self.multButton.grid(row=3, column=2, rowspan=1)
+    
+    self.divButton = tk.Button(master, text="*", command=self.divide)
+    self.divButton.grid(row=3, column=3, rowspan=1)
   
   def plus(self):
     try:
@@ -78,7 +83,7 @@ class Window(tk.Frame):
       result = Decimal(first) - Decimal(second)
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
-        return
+        return   
       self.result.delete(1.0, 'end')
       self.result.insert(1.0, "{:.6f}".format(result))
       
@@ -86,6 +91,48 @@ class Window(tk.Frame):
       self.result.delete(1.0, 'end')
       self.result.insert(1.0, 'error in minus')
     
+  def mult(self):
+    try:
+      first = self.first.get(1.0, 'end').replace(',', '.')
+      second = self.second.get(1.0, 'end').replace(',', '.')
+      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
+        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+        return
+      if 'e' in first or 'e' in second:
+        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
+        return
+      result = Decimal(first) * Decimal(second)
+      if self.check_result(result):
+        messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
+        return
+      self.result.delete(1.0, 'end')
+      self.result.insert(1.0, "{:.6f}".format(result))
+      
+    except:
+      self.result.delete(1.0, 'end')
+      self.result.insert(1.0, 'error in plus')
+  
+  def divide(self):
+    try:
+      first = self.first.get(1.0, 'end').replace(',', '.')
+      second = self.second.get(1.0, 'end').replace(',', '.')
+      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
+        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+        return
+      if 'e' in first or 'e' in second:
+        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
+        return
+      result = Decimal(first) / Decimal(second)
+      if self.check_result(result):
+        messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
+        return
+      self.result.delete(1.0, 'end')
+      self.result.insert(1.0, "{:.6f}".format(result))
+      
+    except:
+      self.result.delete(1.0, 'end')
+      self.result.insert(1.0, 'error in plus')
+  
   def copy(self, event=None):
     self.clipboard_clear()
     self.update()
