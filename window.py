@@ -46,7 +46,7 @@ class Window(tk.Frame):
     self.multButton = tk.Button(master, text="*", command=self.mult)
     self.multButton.grid(row=3, column=2, rowspan=1)
     
-    self.divButton = tk.Button(master, text="*", command=self.divide)
+    self.divButton = tk.Button(master, text="/", command=self.divide)
     self.divButton.grid(row=3, column=3, rowspan=1)
   
   def plus(self):
