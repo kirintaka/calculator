@@ -3,6 +3,7 @@ from tkinter import font
 from decimal import Decimal, getcontext
 from tkinter import messagebox
 import pyperclip
+import re
 
 class Window(tk.Frame):
   def __init__(self, master=None):
@@ -28,14 +29,14 @@ class Window(tk.Frame):
     fileMenu.add_command(label="Exit", command=self.exitProgram)
     menu.add_cascade(label="exit", menu=fileMenu)
     
-    self.first = tk.Text(master, height=1, width=20, font=('Arial', 16))
+    self.first = tk.Text(master, height=1, width=24, font=('Arial', 16))
     self.first.bind('<Control-V>', lambda text=self.first: self.paste(text))
-    self.first.grid(columnspan=20, row=0, column=0)
-    self.second = tk.Text(master, height=1, width=20, font=('Arial', 16))
+    self.first.grid(columnspan=24, row=0, column=0)
+    self.second = tk.Text(master, height=1, width=24, font=('Arial', 16))
     self.second.bind('<Control-V>', lambda text=self.second: self.paste(text))
-    self.second.grid(columnspan=20, row=0, column=20)
-    self.result = tk.Text(master, height=1, width=20, font=('Arial', 16))
-    self.result.grid(columnspan=20, row=1, column=0)
+    self.second.grid(columnspan=24, row=0, column=24)
+    self.result = tk.Text(master, height=1, width=24, font=('Arial', 16))
+    self.result.grid(columnspan=24, row=1, column=0)
         
     self.plusButton = tk.Button(master, text="+", command=self.plus)
     self.plusButton.grid(row=3, column=0, rowspan=1)
@@ -51,87 +52,104 @@ class Window(tk.Frame):
   
   def plus(self):
     try:
-      first = self.first.get(1.0, 'end').replace(',', '.')
-      second = self.second.get(1.0, 'end').replace(',', '.')
-      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
-        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+      first = self.first.get(1.0, 'end').replace(',', '.').rstrip('\n')
+      second = self.second.get(1.0, 'end').replace(',', '.').rstrip('\n')
+      if not (self.is_valid_number(first) and self.is_valid_number(second)):
         return
-      if 'e' in first or 'e' in second:
-        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
-        return
-      result = Decimal(first) + Decimal(second)
+      result = Decimal(first.replace(' ', '')) + Decimal(second.replace(' ', ''))
+      
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
         return
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, "{:.6f}".format(result))
+      self.result.insert(1.0, self.format_answer(result))
       
     except:
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, 'error in plus')
+      self.result.insert(1.0, 'Ошибка при сложении')
       
   def minus(self):
     try:
       first = self.first.get(1.0, 'end').replace(',', '.')
       second = self.second.get(1.0, 'end').replace(',', '.')
-      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
-        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+      if not (self.is_valid_number(first) and self.is_valid_number(second)):
         return
-      if 'e' in first or 'e' in second:
-        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
-        return
-      result = Decimal(first) - Decimal(second)
+      result = Decimal(first.replace(' ', '')) - Decimal(second.replace(' ', ''))
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
         return   
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, "{:.6f}".format(result))
+      self.result.insert(1.0, self.format_answer(result))
       
     except:
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, 'error in minus')
+      self.result.insert(1.0, 'Ошибка при разности')
     
   def mult(self):
     try:
       first = self.first.get(1.0, 'end').replace(',', '.')
       second = self.second.get(1.0, 'end').replace(',', '.')
-      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
-        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+      if not (self.is_valid_number(first) and self.is_valid_number(second)):
         return
-      if 'e' in first or 'e' in second:
-        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
-        return
-      result = Decimal(first) * Decimal(second)
+      result = Decimal(first.replace(' ', '')) * Decimal(second.replace(' ', ''))
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
         return
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, "{:.6f}".format(result))
+      self.result.insert(1.0, self.format_answer(result))
       
     except:
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, 'error in plus')
+      self.result.insert(1.0, 'Ошибка при умножении')
   
   def divide(self):
     try:
       first = self.first.get(1.0, 'end').replace(',', '.')
       second = self.second.get(1.0, 'end').replace(',', '.')
-      if self.check_result(Decimal(first)) or self.check_result(Decimal(second)):
-        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+      if not (self.is_valid_number(first) and self.is_valid_number(second)):
         return
-      if 'e' in first or 'e' in second:
-        messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
-        return
-      result = Decimal(first) / Decimal(second)
+      result = Decimal(first.replace(' ', '')) / Decimal(second.replace(' ', ''))
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
         return
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, "{:.6f}".format(result))
-      
+      self.result.insert(1.0, self.format_answer(result))
+    
+    except ZeroDivisionError as e:
+      self.result.delete(1.0, 'end')
+      self.result.insert(1.0, 'Деление на ноль запрещено!')
     except:
       self.result.delete(1.0, 'end')
-      self.result.insert(1.0, 'error in plus')
+      self.result.insert(1.0, 'Ошибка при делении')
+  
+  def format_answer(self, number) -> str:
+    formatted_result = "{:,.6f}".format(number)
+    return formatted_result.replace(',', ' ').rstrip('0').rstrip('.')
+  
+  def is_valid_number(self, number) -> bool:
+    if 'e' in number:
+      messagebox.showerror('Ошибка', 'Вы не можете использовать числа в экспоненциальной нотации.')
+      return False
+    
+    try:
+      _ = float(number.replace(' ', ''))
+    
+      pattern = r'^\d{1,3}( \d{3})*(\.\d+)?$'
+      if (not number.replace('.', '', 1).isdigit()) and (re.match(pattern, number) is None):
+        messagebox.showerror('Ошибка', 'Неправильный формат числа.')
+        return False
+      
+        
+      if self.check_result(Decimal(number.replace(' ', ''))):
+        messagebox.showerror('Ошибка', 'Число превышает допустимое значение.')
+        return False
+      
+      return True
+      
+    except:
+      messagebox.showerror('Ошибка', 'Число введено некорректно.')
+    
+
   
   def copy(self, event=None):
     self.clipboard_clear()
