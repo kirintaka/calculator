@@ -135,7 +135,7 @@ class Window(tk.Frame):
       _ = float(number.replace(' ', ''))
     
       pattern = r'^\d{1,3}( \d{3})*(\.\d+)?$'
-      if (not number.replace('.', '', 1).isdigit()) and (re.match(pattern, number) is None):
+      if (not number.replace('.', '', 1).rstrip().isdigit()) and (re.match(pattern, number) is None):
         messagebox.showerror('Ошибка', 'Неправильный формат числа.')
         return False
       
