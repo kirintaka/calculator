@@ -6,7 +6,7 @@ app = Window(root)
 
 # set window title
 root.wm_title("Финансовый калькулятор")
-root.geometry("500x400")
+root.geometry("1300x400")
 
 # show window
 root.mainloop()
