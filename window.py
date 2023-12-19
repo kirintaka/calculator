@@ -97,19 +97,19 @@ class Window(tk.Frame):
     self.rounded.insert(1.0, "0")
     
   def round_math(self):
-    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').rstrip('\n'))
+    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').replace(' ', '').rstrip('\n'))
     result = number.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
     self.rounded.delete(1.0, 'end')
     self.rounded.insert(1.0, self.format_answer(result))
   
   def round_bank(self):
-    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').rstrip('\n'))
+    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').replace(' ', '').rstrip('\n'))
     result = number.quantize(Decimal('1'), rounding=ROUND_HALF_EVEN)
     self.rounded.delete(1.0, 'end')
     self.rounded.insert(1.0, self.format_answer(result))
   
   def round_down(self):
-    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').rstrip('\n'))
+    number = Decimal(self.result.get(1.0, 'end').replace(',', '.').replace(' ', '').rstrip('\n'))
     result = floor(number)
     self.rounded.delete(1.0, 'end')
     self.rounded.insert(1.0, self.format_answer(result))
@@ -212,7 +212,7 @@ class Window(tk.Frame):
     try:
       _ = float(number.replace(' ', ''))
     
-      pattern = r'^\d{1,3}( \d{3})*(\.\d+)?$'
+      pattern = r'^-?\d{1,3}( \d{3})*(\.\d+)?$'
       if (not number.replace('.', '', 1).rstrip().isdigit()) and (re.match(pattern, number) is None):
         messagebox.showerror('Ошибка', 'Неправильный формат числа.')
         return False
