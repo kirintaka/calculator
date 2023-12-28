@@ -140,9 +140,17 @@ class Window(tk.Frame):
         return
       result = self.__calculate(self.selected_option2.get(), second, third)
       result = result.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_UP)
-      result = self.__calculate(self.selected_option1.get(), first, result)
-      result = result.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_UP)
-      result = self.__calculate(self.selected_option3.get(), result, fourth)
+      
+      option = self.selected_option3.get()
+      if option != '*' and option != '/':
+        result = self.__calculate(self.selected_option1.get(), first, result)
+        result = result.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_UP)
+        result = self.__calculate(option, result, fourth)
+      else:
+        result = self.__calculate(option, result, fourth)
+        result = result.quantize(Decimal('0.0000000001'), rounding=ROUND_HALF_UP)
+        result = self.__calculate(self.selected_option1.get(), first, result)
+
 
       if self.check_result(result):
         messagebox.showerror('Ошибка', 'Результат превышает допустимое значение.')
